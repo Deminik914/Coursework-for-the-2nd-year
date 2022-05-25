@@ -1,5 +1,5 @@
 # add_task_fsm.py
-from keyboards import other, start
+from keyboards import start
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram import types, Dispatcher
@@ -10,12 +10,10 @@ import datetime
 from create import dateformat
 
 
-
 # FSM - машина состояния
 class FSMRecord(StatesGroup):
     reminder_date = State()
     body = State()
-    notification = State()
 
 
 async def step_one(message: types.Message):
@@ -28,7 +26,7 @@ async def step_two(message: types.Message, state: FSMContext):
         try:
             if datetime.datetime.strptime(message.text,
                                           dateformat).year < datetime.date.today().year or datetime.datetime.strptime(
-                    message.text, dateformat).month < datetime.date.today().month:
+                message.text, dateformat).month < datetime.date.today().month:
                 await message.reply("Надо смотреть в будущее")
                 return
             date["reminder_date"] = message.text
@@ -42,26 +40,12 @@ async def step_two(message: types.Message, state: FSMContext):
 async def step_three(message: types.Message, state: FSMContext):
     async with state.proxy() as date:
         date["body"] = message.text
-    await FSMRecord.next()
-    await message.reply("Включить уведомление?", reply_markup=other.notification_yes_no)
-
-
-async def step_four(message: types.Message, state: FSMContext):
-    async with state.proxy() as date:
-        if message.text == "Да":
-            date['notification'] = 1
-        elif message.text == "Нет":
-            date['notification'] = 0
-        else:
-            return
     async with state.proxy() as date:
         models.Record.get_or_create(
             user_id=message.from_user.id,
             body=str(date["body"]),
-            reminder_date=str(date["reminder_date"]),
-            notification=str(date["notification"])
+            reminder_date=str(date["reminder_date"])
         )
-
     await state.finish()
     await message.answer("Задача добавлена 👌", reply_markup=start.markup_start_menu)
 
@@ -70,4 +54,6 @@ def register_handlers_add_task(dp: Dispatcher):
     dp.register_message_handler(step_one, Text(equals="➕ Добавить задачу"), state=None)
     dp.register_message_handler(step_two, state=FSMRecord.reminder_date)
     dp.register_message_handler(step_three, state=FSMRecord.body)
-    dp.register_message_handler(step_four, state=FSMRecord.notification)
+
+
+

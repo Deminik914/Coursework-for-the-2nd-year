@@ -19,7 +19,6 @@ logging.basicConfig(
 main.register_handlers_start(dp)
 add_task_fsm.register_handlers_add_task(dp)
 task_list.regester_list_task(dp)
-
 print("Bot run")
 
 if __name__ == "__main__":

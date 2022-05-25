@@ -2,7 +2,6 @@
 from peewee import *
 import datetime
 
-
 '''
 # Connect to a MySQL database on network.
 mysql_db = MySQLDatabase('my_app', user='app', password='db_password',
@@ -29,10 +28,9 @@ class Record(BaseModel):
     date_create = DateTimeField(default=datetime.datetime.now().strftime("%d-%m-%Y %H:%M"))
     body = CharField(max_length=64)
     reminder_date = DateTimeField(formats='%d-%m-%Y')
-    notification = BitField()
 
     class Meta:
         db_table = "record"
 
-# atabase.drop_tables([Record], safe=True)
+database.drop_tables([Record], safe=True)
 database.create_tables([Record], safe=True)

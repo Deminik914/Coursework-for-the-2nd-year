@@ -1,10 +1,9 @@
 # task_list_key.py
-from aiogram import types, Dispatcher
+from aiogram import types
 from aiogram.dispatcher.filters import Text
 from keyboards import task_list_key, help, start
 from db import models
 import datetime
-from aiogram.types import ReplyKeyboardRemove
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from create import *
@@ -32,7 +31,7 @@ async def list_task(message: types.message):
 async def remove_all_rec(message: types.message):
     query = models.Record.delete().where(models.Record.user_id == message.from_user.id)
     query.execute()
-    await message.answer('ok')
+    await message.answer('ok', reply_markup=start.markup_start_menu)
 
 
 async def del_task_by_date_start(message: types.message):
@@ -50,7 +49,7 @@ async def del_task_by_date(message: types.Message, state: FSMContext):
         await message.answer("Укажить дату задачи")
         return
     await state.finish()
-    await message.answer("ok")
+    await message.answer("ok", reply_markup=start.markup_start_menu)
 
 
 def regester_list_task(dp: Dispatcher):
